@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic Tac Toe</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+            margin: 0;
+        }
+        .container {
+            text-align: center;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            width: 300px;
+        }
+        h1 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+        .cell {
+            width: 80px;
+            height: 80px;
+            background-color: #eaeaea;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2rem;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        .cell:hover {
+            background-color: #d0d0d0;
+        }
+        #message {
+            margin-top: 20px;
+            font-weight: bold;
+            color: #ff5733;
+        }
+        .btn {
+            margin-top: 20px;
+            padding: 10px 15px;
+            background-color: #ff5733;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .btn:hover {
+            background-color: #e04d2f;
+        }
+        .btn-group {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Tic Tac Toe</h1>
+    <div class="board" id="board">
+        <div class="cell" data-index="0"></div>
+        <div class="cell" data-index="1"></div>
+        <div class="cell" data-index="2"></div>
+        <div class="cell" data-index="3"></div>
+        <div class="cell" data-index="4"></div>
+        <div class="cell" data-index="5"></div>
+        <div class="cell" data-index="6"></div>
+        <div class="cell" data-index="7"></div>
+        <div class="cell" data-index="8"></div>
+    </div>
+    <div id="message"></div>
+    <div class="btn-group">
+        <button class="btn" id="restart">Restart Game</button>
+    </div>
+    <div class="btn-group">
+        <button class="btn" id="manual">Play with Friend</button>
+        <button class="btn" id="ai">Play with AI</button>
+    </div>
+</div>
+
+<script>
+    let board = ['', '', '', '', '', '', '', '', ''];
+    let currentPlayer = 'X';
+    let isGameActive = true;
+    let isAI = false;
+
+    const boardElement = document.getElementById('board');
+    const messageElement = document.getElementById('message');
+    const restartButton = document.getElementById('restart');
+    const manualButton = document.getElementById('manual');
+    const aiButton = document.getElementById('ai');
+
+    const winningCombinations = [
+        [0, 1, 2],
+        [3, 4, 5],
+        [6, 7, 8],
+        [0, 3, 6],
+        [1, 4, 7],
+        [2, 5, 8],
+        [0, 4, 8],
+        [2, 4, 6]
+    ];
+
+    function checkWinner() {
+        for (let i = 0; i < winningCombinations.length; i++) {
+            const [a, b, c] = winningCombinations[i];
+            if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+                isGameActive = false;
+                return board[a];
+            }
+        }
+        if (!board.includes('')) return 'Draw';
+        return null;
+    }
+
+    function aiMove() {
+        let availableCells = board.map((cell, index) => (cell === '' ? index : null)).filter(index => index !== null);
+        let randomMove = availableCells[Math.floor(Math.random() * availableCells.length)];
+        makeMove(randomMove);
+    }
+
+    function makeMove(index) {
+        if (board[index] === '' && isGameActive) {
+            board[index] = currentPlayer;
+            document.querySelector(`.cell[data-index="${index}"]`).textContent = currentPlayer;
+            let winner = checkWinner();
+            if (winner) {
+                messageElement.textContent = winner === 'Draw' ? 'It\'s a Draw!' : `${winner} Wins!`;
+            } else {
+                currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+                if (isAI && currentPlayer === 'O') aiMove();
+            }
+        }
+    }
+
+    function resetBoard() {
+        board = ['', '', '', '', '', '', '', '', ''];
+        currentPlayer = 'X';
+        isGameActive = true;
+        document.querySelectorAll('.cell').forEach(cell => (cell.textContent = ''));
+        messageElement.textContent = '';
+    }
+
+    boardElement.addEventListener('click', (event) => {
+        if (event.target.classList.contains('cell')) {
+            const index = event.target.getAttribute('data-index');
+            makeMove(index);
+        }
+    });
+
+    restartButton.addEventListener('click', resetBoard);
+
+    manualButton.addEventListener('click', () => {
+        isAI = false;
+        resetBoard();
+        messageElement.textContent = 'Playing with Friend';
+    });
+
+    aiButton.addEventListener('click', () => {
+        isAI = true;
+        resetBoard();
+        messageElement.textContent = 'Playing with AI';
+    });
+</script>
+
+</body>
+</html>
